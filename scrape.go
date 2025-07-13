@@ -67,10 +67,12 @@ func blobDownloadAll(handle string) error {
 			// download the entire blob in to memory, then write to disk
 			blobBytes, err := comatproto.SyncGetBlob(ctx, &xrpcc, cidStr, ident.DID.String())
 			if err != nil {
-				return err
+				fmt.Printf("Warning, failed to download blob: %s", err)
+				continue
 			}
 			if err := os.WriteFile(blobPath, blobBytes, 0666); err != nil {
-				return err
+				fmt.Printf("Warning, failed to write file: %s", err)
+				continue
 			}
 		}
 
