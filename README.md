@@ -12,3 +12,9 @@ There is no auth mechanism at all right now, so this will probably only work on 
 ## Usage
 `pic-scrape bsky.app`
 `pic-scrape.exe jay.bsky.team`
+
+## Building
+Windows: `GOOS=windows GOARCH=amd64 go build -o pic-scrape.exe`
+Linux: `GOOS=linux GOARCH=amd64 go build -o pic-scrape`
+MacOS: `GOOS=darwin GOARCH=amd64 go build -o pic-scrape-macos-intel`
+MacOS: `GOOS=darwin GOARCH=arm64 go build -o pic-scrape-macos-silicon`
