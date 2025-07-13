@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"net/http"
 	"os"
 
 	comatproto "github.com/bluesky-social/indigo/api/atproto"
@@ -58,19 +59,48 @@ func blobDownloadAll(handle string) error {
 			return err
 		}
 		for _, cidStr := range resp.Cids {
-			// if the file already exists, skip
 			blobPath := topDir + "/" + cidStr
-			if _, err := os.Stat(blobPath); err == nil {
-				continue
-			}
-
 			// download the entire blob in to memory, then write to disk
 			blobBytes, err := comatproto.SyncGetBlob(ctx, &xrpcc, cidStr, ident.DID.String())
 			if err != nil {
 				fmt.Printf("Warning, failed to download blob: %s", err)
 				continue
 			}
-			if err := os.WriteFile(blobPath, blobBytes, 0666); err != nil {
+			var extension string
+			mimetype := http.DetectContentType(blobBytes)
+			switch mimetype {
+			// Image formats
+			case "image/apng":
+				extension = ".apng"
+			case "image/avif":
+				extension = ".avif"
+			case "image/bmp":
+				extension = ".bmp"
+			case "image/gif":
+				extension = ".gif"
+			case "image/jpeg":
+				extension = ".jpg"
+			case "image/svg+xml":
+				extension = ".svg"
+			case "image/png":
+				extension = ".png"
+			case "image/webp":
+				extension = ".webp"
+			// Video formats
+			case "video/x-msvideo":
+				extension = ".avi"
+			case "video/mp4":
+				extension = ".mp4"
+			case "video/mpeg":
+				extension = ".mpeg"
+			case "video/ogg":
+				extension = ".ogv"
+			case "video/webm":
+				extension = ".webm"
+			default:
+				fmt.Println(mimetype)
+			}
+			if err := os.WriteFile(blobPath+extension, blobBytes, 0666); err != nil {
 				fmt.Printf("Warning, failed to write file: %s", err)
 				continue
 			}
